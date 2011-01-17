@@ -24,6 +24,7 @@ package org.jboss.test.osgi.vfs30;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -52,16 +53,20 @@ import org.osgi.framework.Constants;
 
 /**
  * A test that verifies the VFS30 abstraction.
- * 
+ *
  * @author thomas.diesler@jboss.com
  * @since 11-Mar-2010
  */
 public class SimpleVFS30TestCase {
-
-    private static File file;
+    private static File file, file2;
 
     @BeforeClass
     public static void beforeClass() throws IOException {
+        createExampleSimple();
+        createExample2();
+    }
+
+    private static void createExampleSimple() throws IOException {
         JavaArchive archive = ShrinkWrap.create(JavaArchive.class, "example-simple.jar");
         archive.addClass(SimpleActivator.class);
         archive.setManifest(new Asset() {
@@ -78,109 +83,98 @@ public class SimpleVFS30TestCase {
         file = toFile(archive);
     }
 
+    private static void createExample2() throws IOException {
+        JavaArchive archive = ShrinkWrap.create(JavaArchive.class, "example2.jar");
+        archive.addResource(getAsset("file1"), "file1.txt");
+        archive.addResource(getAsset("file2"), "file2.txt");
+        archive.addResource(getAsset("file3"), "sub/file3.txt");
+        archive.addResource(getAsset("file4"), "sub/file4.txt");
+        archive.addResource(getAsset("file5"), "sub/sub/file5.txt");
+        archive.addResource(getAsset("file6"), "sub/sub1/file6.txt");
+        file2 = toFile(archive);
+    }
+
     @Test
     public void testFromURL() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile(file.toURI().toURL());
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertEquals(file.getAbsolutePath() + "/" + JarFile.MANIFEST_NAME, child.getPathName());
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
-    
+
     @Test
     public void testFromURI() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile(file.toURI());
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertEquals(file.getAbsolutePath() + "/" + JarFile.MANIFEST_NAME, child.getPathName());
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
-    
+
     @Test
     public void testFromStream() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile("foo", new FileInputStream(file));
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertEquals("/foo/" + JarFile.MANIFEST_NAME, child.getPathName());
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
-    
+
     @Test
     public void testFromStream2() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile("/foo", new FileInputStream(file));
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertEquals("/foo/" + JarFile.MANIFEST_NAME, child.getPathName());
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
-    
+
     @Test
     public void testFromStream3() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile("/foo/", new FileInputStream(file));
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertEquals("/foo/" + JarFile.MANIFEST_NAME, child.getPathName());
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
-    
+
     @Test
     public void testFromStream4() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile("/foo/bar", new FileInputStream(file));
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertEquals("/foo/bar/" + JarFile.MANIFEST_NAME, child.getPathName());
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
-    
+
     @Test
     public void testFromStream5() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile("file://foo/bar", new FileInputStream(file));
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertEquals("/file:/foo/bar/" + JarFile.MANIFEST_NAME, child.getPathName());
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
-    
+
     @Test
     public void testManifestAccess() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile(file.toURI());
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertNotNull("Manifest not null", child);
 
@@ -189,9 +183,7 @@ public class SimpleVFS30TestCase {
             Attributes attributes = manifest.getMainAttributes();
             String symbolicName = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
             assertEquals("example-simple", symbolicName);
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
@@ -199,8 +191,7 @@ public class SimpleVFS30TestCase {
     @Test
     public void testManifestURLAccess() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile(file.toURI());
-        try
-        {
+        try {
             VirtualFile child = virtualFile.getChild(JarFile.MANIFEST_NAME);
             assertNotNull("Manifest not null", child);
 
@@ -212,9 +203,7 @@ public class SimpleVFS30TestCase {
             Attributes attributes = manifest.getMainAttributes();
             String symbolicName = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
             assertEquals("example-simple", symbolicName);
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
@@ -222,8 +211,7 @@ public class SimpleVFS30TestCase {
     @Test
     public void testGetEntryPaths() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile(file.toURI());
-        try
-        {
+        try {
             Set<String> actual = new HashSet<String>();
             Enumeration<String> en = virtualFile.getEntryPaths("/");
             while (en.hasMoreElements())
@@ -240,9 +228,7 @@ public class SimpleVFS30TestCase {
             expected.add("META-INF/");
             expected.add("META-INF/MANIFEST.MF");
             assertEquals(expected, actual);
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
@@ -250,8 +236,7 @@ public class SimpleVFS30TestCase {
     @Test
     public void testFindEntries() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile(file.toURI());
-        try
-        {
+        try {
             Set<String> actual = new HashSet<String>();
             Enumeration<URL> en = virtualFile.findEntries("/", null, true);
             while (en.hasMoreElements())
@@ -261,9 +246,27 @@ public class SimpleVFS30TestCase {
             expected.add(virtualFile.toURL() + "org/jboss/test/osgi/vfs30/bundle/SimpleActivator.class");
             expected.add(virtualFile.toURL() + "META-INF/MANIFEST.MF");
             assertEquals(expected, actual);
+        } finally {
+            virtualFile.close();
         }
-        finally
-        {
+    }
+
+    @Test
+    public void testFindEntries2() throws Exception {
+        VirtualFile virtualFile = AbstractVFS.toVirtualFile(file2.toURI());
+        try {
+            Set<String> actual = new HashSet<String>();
+            Enumeration<URL> en = virtualFile.findEntries("sub", "*", false);
+            while (en.hasMoreElements())
+                actual.add(en.nextElement().toExternalForm());
+
+            Set<String> expected = new HashSet<String>();
+            expected.add(virtualFile.toURL() + "sub/file3.txt");
+            expected.add(virtualFile.toURL() + "sub/file4.txt");
+            expected.add(virtualFile.toURL() + "sub/sub/");
+            expected.add(virtualFile.toURL() + "sub/sub1/");
+            assertEquals(expected, actual);
+        } finally {
             virtualFile.close();
         }
     }
@@ -271,17 +274,14 @@ public class SimpleVFS30TestCase {
     @Test
     public void testStreamURLAccess() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile(file.toURI());
-        try
-        {
+        try {
             URL streamURL = virtualFile.getStreamURL();
             JarInputStream jarIn = new JarInputStream(streamURL.openStream());
             Manifest manifest = jarIn.getManifest();
             Attributes attributes = manifest.getMainAttributes();
             String symbolicName = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
             assertEquals("example-simple", symbolicName);
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
@@ -289,17 +289,14 @@ public class SimpleVFS30TestCase {
     @Test
     public void testStreamAccess() throws Exception {
         VirtualFile virtualFile = AbstractVFS.toVirtualFile(file.toURI());
-        try
-        {
+        try {
             InputStream instream = virtualFile.openStream();
             JarInputStream jarIn = new JarInputStream(instream);
             Manifest manifest = jarIn.getManifest();
             Attributes attributes = manifest.getMainAttributes();
             String symbolicName = attributes.getValue(Constants.BUNDLE_SYMBOLICNAME);
             assertEquals("example-simple", symbolicName);
-        }
-        finally
-        {
+        } finally {
             virtualFile.close();
         }
     }
@@ -310,5 +307,14 @@ public class SimpleVFS30TestCase {
         File file = new File("target/" + archive.getName());
         VFSUtils.copyStream(inputStream, new FileOutputStream(file));
         return file;
+    }
+
+    private static Asset getAsset(final String content) {
+        return new Asset() {
+            @Override
+            public InputStream openStream() {
+                return new ByteArrayInputStream(content.getBytes());
+            }
+        };
     }
 }

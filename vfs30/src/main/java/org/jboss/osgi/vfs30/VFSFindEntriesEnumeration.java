@@ -36,7 +36,7 @@ import org.jboss.vfs.util.MatchAllVirtualFileFilter;
 
 /**
  * An enumeration of VFS entries.
- * 
+ *
  * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @author thomas.diesler@jboss.com
  * @version $Revision: 1.1 $
@@ -48,7 +48,7 @@ class VFSFindEntriesEnumeration implements Enumeration<URL> {
 
     /**
      * Create a new VFSFindEntriesEnumeration.
-     * 
+     *
      * @param root the root file
      * @param file the file to enumerate
      * @param filePattern the file pattern
@@ -64,7 +64,7 @@ class VFSFindEntriesEnumeration implements Enumeration<URL> {
         String rootPath = root.getPathName();
         VisitorAttributes attributes = new VisitorAttributes();
         attributes.setIncludeRoot(false);
-        attributes.setLeavesOnly(true);
+        attributes.setLeavesOnly(false);
         if (recurse)
             attributes.setRecurseFilter(MatchAllVirtualFileFilter.INSTANCE);
 
