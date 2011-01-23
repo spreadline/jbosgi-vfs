@@ -36,9 +36,10 @@ import org.jboss.vfs.util.MatchAllVirtualFileFilter;
 
 /**
  * An enumeration of VFS entries.
- *
+ * 
  * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @author thomas.diesler@jboss.com
+ * @author <a href="david@redhat.com">David Bosschaert</a>
  * @version $Revision: 1.1 $
  */
 class VFSFindEntriesEnumeration implements Enumeration<URL> {

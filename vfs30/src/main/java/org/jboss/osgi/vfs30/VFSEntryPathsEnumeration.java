@@ -31,9 +31,10 @@ import org.jboss.vfs.VirtualFile;
 
 /**
  * An enumeration of VFS entry paths.
- *
+ * 
  * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @author thomas.diesler@jboss.com
+ * @author <a href="david@redhat.com">David Bosschaert</a>
  * @version $Revision: 1.1 $
  */
 class VFSEntryPathsEnumeration implements Enumeration<String> {

@@ -53,8 +53,9 @@ import org.osgi.framework.Constants;
 
 /**
  * A test that verifies the VFS30 abstraction.
- *
+ * 
  * @author thomas.diesler@jboss.com
+ * @author <a href="david@redhat.com">David Bosschaert</a>
  * @since 11-Mar-2010
  */
 public class SimpleVFS30TestCase {
@@ -219,14 +220,7 @@ public class SimpleVFS30TestCase {
 
             Set<String> expected = new HashSet<String>();
             expected.add("org/");
-            expected.add("org/jboss/");
-            expected.add("org/jboss/test/");
-            expected.add("org/jboss/test/osgi/");
-            expected.add("org/jboss/test/osgi/vfs30/");
-            expected.add("org/jboss/test/osgi/vfs30/bundle/");
-            expected.add("org/jboss/test/osgi/vfs30/bundle/SimpleActivator.class");
             expected.add("META-INF/");
-            expected.add("META-INF/MANIFEST.MF");
             assertEquals(expected, actual);
         } finally {
             virtualFile.close();
@@ -243,7 +237,14 @@ public class SimpleVFS30TestCase {
                 actual.add(en.nextElement().toExternalForm());
 
             Set<String> expected = new HashSet<String>();
+            expected.add(virtualFile.toURL() + "org/");
+            expected.add(virtualFile.toURL() + "org/jboss/");
+            expected.add(virtualFile.toURL() + "org/jboss/test/");
+            expected.add(virtualFile.toURL() + "org/jboss/test/osgi/");
+            expected.add(virtualFile.toURL() + "org/jboss/test/osgi/vfs30/");
+            expected.add(virtualFile.toURL() + "org/jboss/test/osgi/vfs30/bundle/");
             expected.add(virtualFile.toURL() + "org/jboss/test/osgi/vfs30/bundle/SimpleActivator.class");
+            expected.add(virtualFile.toURL() + "META-INF/");
             expected.add(virtualFile.toURL() + "META-INF/MANIFEST.MF");
             assertEquals(expected, actual);
         } finally {
